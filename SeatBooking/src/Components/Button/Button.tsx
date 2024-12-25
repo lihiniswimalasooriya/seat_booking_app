@@ -5,7 +5,7 @@ type ButtonProps = {
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
   className?: string;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "delete";
 };
 
 const Button: React.FC<ButtonProps> = ({
@@ -21,7 +21,8 @@ const Button: React.FC<ButtonProps> = ({
   const variantStyles = {
     primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
     secondary:
-      "bg-blue-100 text-blue-700 hover:bg-blue-200 focus:ring-blue-500",
+      "bg-blue-200 text-blue-700 hover:bg-blue-200 focus:ring-blue-500",
+    delete: "bg-red-200 text-red-700 hover:bg-red-200 focus:ring-red-500",
   };
 
   return (
