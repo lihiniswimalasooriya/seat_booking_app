@@ -22,11 +22,11 @@ const AvailableBuses = () => {
     startTime,
     routeId,
   } = useBookingStore();
-  const { finalMessage, status } = useWebSocket(
+  const { finalMessage } = useWebSocket(
     "wss://sheetbookingsocket.glitch.me"
   );
 
-  const [wsResponse, setwsResponse] = useState();
+  const [, setwsResponse] = useState();
 
   useEffect(() => {
     try {
@@ -155,7 +155,7 @@ const AvailableBuses = () => {
                 onClick={() => setShowSeatSelector(!showSeatSelector)}
                 className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200"
               >
-                {showSeatSelector ? "Hide Seat Selection" : "Book My Seats"}
+                {showSeatSelector ? "Hide Seat Selection" : "Book My Seat"}
               </Button>
               {showSeatSelector && (
                 <div className="mt-8">

@@ -3,7 +3,7 @@ import useWebSocket from "./Utils/useWebSocket";
 
 const WebSocketDisplay: React.FC = () => {
   const { messages, status , finalMessage} = useWebSocket(
-    "wss://sheetbookingsocket.glitch.me"
+    import.meta.env.VITE_APP_BASE_URL
   );
 
   console.log("messages", finalMessage);
