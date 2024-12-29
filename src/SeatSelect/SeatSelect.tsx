@@ -72,11 +72,11 @@ const SeatSelect: React.FC<SeatSelectProps> = ({
   const { setAddedResrvationId, travelDate, busId, defaultTripId, fare } =
     useBookingStore();
 
-  const { finalMessage, status } = useWebSocket(
-    "wss://sheetbookingsocket.glitch.me"
+  const { finalMessage } = useWebSocket(
+    import.meta.env.VITE_APP_BASE_URL
   );
 
-  const [wsResponse, setwsResponse] = useState<any>();
+  const [, setwsResponse] = useState<any>();
 
   useEffect(() => {
     try {
@@ -164,7 +164,7 @@ const SeatSelect: React.FC<SeatSelectProps> = ({
   return (
     <div className="w-full bg-slate-900 p-6 rounded-lg text-white">
       <h3 className="text-xl font-semibold mb-6 text-center">
-        Select Your Seats
+        Select Your Seat
       </h3>
 
       <Legend />
