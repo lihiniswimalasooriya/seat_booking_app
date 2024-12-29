@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchAllBooking } from "../Utils/Api";
+import { axiosInstance, fetchAllBooking } from "../Utils/Api";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { UserData } from "../Utils/Types";
@@ -78,6 +78,53 @@ const CommuterProfile = () => {
       </div>
     );
   }
+
+  const handleCompleteBooking = async (bookingId: string) => {
+    const confirmAction = window.confirm(
+      "Are you sure you want to complete the payment for this booking?"
+    );
+    if (!confirmAction) return;
+  
+    try {
+      await axiosInstance.put(`/reservations/${bookingId}`, {
+        paymentStatus: "completed",
+      });
+  
+      setMyBookings((prevBookings) =>
+        prevBookings.map((booking) =>
+          booking._id === bookingId
+            ? { ...booking, paymentStatus: "completed" }
+            : booking
+        )
+      );
+  
+      window.alert("Payment completed successfully!");
+    } catch (error) {
+      console.error("Error completing payment:", error);
+      window.alert("Failed to complete the payment. Please try again.");
+    }
+  };
+  
+  const handleDeleteBooking = async (bookingId: string) => {
+    const confirmAction = window.confirm(
+      "Are you sure you want to delete this booking? This action cannot be undone."
+    );
+    if (!confirmAction) return;
+  
+    try {
+      await axiosInstance.delete(`/reservations/${bookingId}`);
+  
+      setMyBookings((prevBookings) =>
+        prevBookings.filter((booking) => booking._id !== bookingId)
+      );
+  
+      window.alert("Booking deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+      window.alert("Failed to delete the booking. Please try again.");
+    }
+  };
+  
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
@@ -202,6 +249,24 @@ const CommuterProfile = () => {
                     Payment Status:{" "}
                     <span className="font-medium">{booking.paymentStatus}</span>
                   </p>
+
+                  {/* Buttons */}
+                  <div className="mt-4 flex items-center space-x-2">
+                    {booking.paymentStatus === "pending" && (
+                      <button
+                        onClick={() => handleCompleteBooking(booking._id)}
+                        className="px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                      >
+                        Complete Payment
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDeleteBooking(booking._id)}
+                      className="px-3 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

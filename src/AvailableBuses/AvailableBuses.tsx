@@ -4,6 +4,7 @@ import Button from "../Components/Button/Button";
 import SeatSelect from "../SeatSelect/SeatSelect";
 import { useBookingStore } from "../store/useBookingStore";
 import { axiosInstance } from "../Utils/Api";
+import useWebSocket from "../Utils/useWebSocket";
 
 const AvailableBuses = () => {
   const {
@@ -21,6 +22,44 @@ const AvailableBuses = () => {
     startTime,
     routeId,
   } = useBookingStore();
+  const { finalMessage, status } = useWebSocket(
+    "wss://sheetbookingsocket.glitch.me"
+  );
+
+  const [wsResponse, setwsResponse] = useState();
+
+  useEffect(() => {
+    try {
+      // Parse the outer JSON
+      if (finalMessage) {
+        const outerObject = JSON.parse(finalMessage);
+
+        // Parse the inner JSON string in the "message" key
+        const innerObject = JSON.parse(outerObject.message);
+        setwsResponse(innerObject);
+        console.log("innerObject", innerObject);
+      }
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+    }
+  }, [finalMessage]);
+  
+  useEffect(() => {
+    try {
+      // Parse the outer JSON
+      if (finalMessage) {
+        const outerObject = JSON.parse(finalMessage);
+
+        // Parse the inner JSON string in the "message" key
+        const innerObject = JSON.parse(outerObject.message);
+        setwsResponse(innerObject);
+        console.log("innerObject", innerObject);
+      }
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+    }
+  }, [finalMessage]);
+
 
   const [showSeatSelector, setShowSeatSelector] = useState(false);
   console.log("toLocation", toLocation);
@@ -32,7 +71,6 @@ const AvailableBuses = () => {
 
   const handleSeatSelect = async (selectedSeats: number[]) => {
     console.log("Selected seats:", selectedSeats);
-    
   };
 
   interface TripDetails {

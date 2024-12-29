@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "../Components/Button/Button";
 import { useNavigate } from "react-router-dom";
 import { useBookingStore } from "../store/useBookingStore";
 import { axiosInstance } from "../Utils/Api";
+import useWebSocket from "../Utils/useWebSocket";
 
 interface SeatSelectProps {
   totalSeats?: number;
@@ -26,7 +27,7 @@ const Seat: React.FC<SeatProps> = ({
 }) => (
   <button
     onClick={onClick}
-    disabled={isBooked}
+    disabled={isBooked || isSelected}
     className={`w-12 h-12 rounded-t-lg relative ${
       isBooked
         ? "bg-red-500 cursor-not-allowed"
@@ -68,25 +69,57 @@ const SeatSelect: React.FC<SeatSelectProps> = ({
   pricePerSeat = 0,
 }) => {
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
-  const {
-    setAddedResrvationId,
-    travelDate,
-    busId,
-    defaultTripId,
-  } = useBookingStore();
+  const { setAddedResrvationId, travelDate, busId, defaultTripId, fare } =
+    useBookingStore();
+
+  const { finalMessage, status } = useWebSocket(
+    "wss://sheetbookingsocket.glitch.me"
+  );
+
+  const [wsResponse, setwsResponse] = useState<any>();
+
+  useEffect(() => {
+    try {
+      // Parse the outer JSON
+      if (finalMessage) {
+        const outerObject = JSON.parse(finalMessage);
+
+        // Parse the inner JSON string in the "message" key
+        const innerObject = JSON.parse(outerObject.message);
+
+        // Only update state if the bookedSeats are different from the current state
+        if (
+          JSON.stringify(innerObject.bookedSeats) !==
+          JSON.stringify(selectedSeats)
+        ) {
+          setwsResponse(innerObject);
+          setSelectedSeats(innerObject.bookedSeats);
+        }
+      }
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+    }
+  }, [finalMessage]);
 
   const navigate = useNavigate();
 
   const seats = Array.from({ length: totalSeats }, (_, i) => i + 1);
 
-  const handleSeatClick = (seatNumber: number) => {
-    if (bookedSeats.includes(seatNumber)) return;
+  const [newSeat, setNewSeat] = useState<any>();
+  
 
-    setSelectedSeats((prev) =>
-      prev.includes(seatNumber)
+  const handleSeatClick = (seatNumber: number) => {
+    
+    if (bookedSeats.includes(seatNumber)) return;
+    setNewSeat(seatNumber)
+    setSelectedSeats((prev) => {
+      const newSelection = prev.includes(seatNumber)
         ? prev.filter((seat) => seat !== seatNumber)
-        : [...prev, seatNumber].sort((a, b) => a - b)
-    );
+        : [...prev, seatNumber];
+
+      // Sort the seats after selection
+      return newSelection.sort((a, b) => a - b);
+    });
   };
 
   const handleConfirmSelection = async () => {
@@ -103,7 +136,7 @@ const SeatSelect: React.FC<SeatSelectProps> = ({
           busId,
           defaultTripId,
           date: travelDate,
-          seatNumber: selectedSeats[selectedSeats.length - 1], // Get the last seat
+          seatNumber: newSeat, // Get the last seat
         };
 
         const responseReservation = await axiosInstance.post(
@@ -112,24 +145,21 @@ const SeatSelect: React.FC<SeatSelectProps> = ({
         );
         setAddedResrvationId(responseReservation.data.reservation._id);
 
-        const paymentConfirmed = window.confirm(
-          "Reservation created. Do you want to complete the payment now?"
-        );
-
-        if (paymentConfirmed) {
-          // Complete payment
-          alert("Payment completed successfully!");
-          navigate("/");
-          location.reload();
+        if (responseReservation?.data?.reservation?._id) {
+          setAddedResrvationId(responseReservation.data.reservation._id);
+          navigate("/"); // Only navigate to the home page
         }
       } catch (error) {
         console.error("Error:", error);
-        alert("An error occurred. Please try again.");
+        alert(
+          "An error occurred while processing your reservation. Please try again later."
+        );
       }
     }
   };
 
-  const totalAmount = selectedSeats.length * pricePerSeat;
+  const totalAmount =
+    pricePerSeat > 0 ? selectedSeats.length * pricePerSeat : 0;
 
   return (
     <div className="w-full bg-slate-900 p-6 rounded-lg text-white">
@@ -175,11 +205,9 @@ const SeatSelect: React.FC<SeatSelectProps> = ({
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
               <p className="font-semibold">
-                Selected Seats: {selectedSeats.join(", ")}
+                Selected Seats: {newSeat}
               </p>
-              <p className="text-sm text-gray-400">
-                Total Amount: {totalAmount.toLocaleString()} LKR
-              </p>
+              <p className="text-sm text-gray-400">Total Amount: {fare} LKR</p>
             </div>
             <Button
               onClick={handleConfirmSelection}
