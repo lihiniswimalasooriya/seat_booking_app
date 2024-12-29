@@ -89,7 +89,7 @@ import AvailableBuses from "./AvailableBuses/AvailableBuses";
 import SeatSelect from "./SeatSelect/SeatSelect";
 import CustomRoutes from "./Routes/CustomRoutes";
 import CommuterProfile from "./CommuterProfile/CommuterProfile";
-import WebSocketTest from "./WebSocketTest";
+import WebSocketTest from "./WebSocketDisplay";
 import Trips from "./Trips/Trips";
 
 function App() {
