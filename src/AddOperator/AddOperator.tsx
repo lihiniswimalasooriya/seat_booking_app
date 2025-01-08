@@ -18,7 +18,7 @@ const AddOperator: React.FC = () => {
   const [newOperator, setNewOperator] = useState<any>({
     name: "",
     contact: "",
-    role: "",
+    role: "operator",
     email: "",
     password: "",
   });
@@ -82,7 +82,7 @@ const AddOperator: React.FC = () => {
       setNewOperator({
         name: "",
         contact: "",
-        role: "",
+        role: "operator",
         email: "",
         password: "",
       });
@@ -179,9 +179,6 @@ const AddOperator: React.FC = () => {
                     <th className="px-6 py-4 text-left text-sm font-bold text-black uppercase tracking-wider">
                       Email
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-bold text-black uppercase tracking-wider">
-                      Role
-                    </th>
                     <th className="px-6 py-4 text-center text-sm font-bold text-black uppercase tracking-wider">
                       Actions
                     </th>
@@ -195,9 +192,6 @@ const AddOperator: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-gray-600">
                         {operator.email}
-                      </td>
-                      <td className="px-6 py-4 text-gray-600">
-                        {operator.role}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <Button
@@ -244,6 +238,7 @@ const AddOperator: React.FC = () => {
                 value={newOperator.role}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 border rounded-md"
+                hidden
               />
               <input
                 type="email"
@@ -298,9 +293,10 @@ const AddOperator: React.FC = () => {
                 type="text"
                 name="role"
                 placeholder="Role"
-                value={selectedOperator?.role || ""}
+                value={selectedOperator?.role || "operator"}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 border rounded-md"
+                hidden
               />
               <input
                 type="email"

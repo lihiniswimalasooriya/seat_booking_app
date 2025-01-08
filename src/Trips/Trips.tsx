@@ -88,6 +88,7 @@ const Trips = () => {
       setIsModalOpen(false);
       setIsEditing(false);
       setEditingTripId(null);
+      location.reload();
     } catch (error) {
       console.error("Error adding or updating trip:", error);
     }
